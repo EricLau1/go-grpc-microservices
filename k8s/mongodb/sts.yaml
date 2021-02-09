@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+spec:
+  serviceName: mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:4.0.8
+        env:
+          - name: MONGO_INITDB_ROOT_USERNAME_FILE
+            value: /etc/credentials/admin/MONGO_ROOT_USERNAME
+          - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+            value: /etc/credentials/admin/MONGO_ROOT_PASSWORD
+        volumeMounts:
+        - name: credentials
+          mountPath: /etc/credentials
+          readOnly: true
+        - name: mongo-data
+          mountPath: /data/db
+      nodeSelector:
+        kubernetes.io/hostname: minikube
+      volumes:
+      - name: mongo-data
+        persistentVolumeClaim:
+          claimName: mongodb
+      - name: credentials
+        secret:
+          secretName: mongodb-secrets
+          items:
+          - key: username
+            path: admin/MONGO_ROOT_USERNAME
+            mode: 0444
+          - key: password
+            path: admin/MONGO_ROOT_PASSWORD
+            mode: 0444
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+spec:
+  type: NodePort
+  ports:
+  - port: 27017
+    targetPort: 27017
+  selector:
+    app: database

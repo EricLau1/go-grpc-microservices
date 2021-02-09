@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-svc
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: svc
+      role: api
+  template:
+    metadata:
+      labels:
+        app: svc
+        role: api
+    spec:
+      containers:
+      - name: api-svc
+        image: microservices:v1
+        ports:
+        - containerPort: 9000
+        command:
+          - sh
+          - -c
+          - /app/apisvc -auth_addr=$auth_addr
+        env:
+          - name: auth_addr
+            value: auth-service:9001
+            
+          - name: JWT_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: svc-secrets
+                key: jwtSecretKey
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+spec:
+  type: LoadBalancer
+  ports:      
+    - name: http
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+  selector:
+    app: svc
+    role: api

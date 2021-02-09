@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: svc-configs
+data:
+  db_host: mongodb
+  db_port: "27017"
+  db_name: microservices

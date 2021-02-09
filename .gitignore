@@ -1,0 +1,4 @@
+pb/**/*
+authsvc
+apisvc
+.env

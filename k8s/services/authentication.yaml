@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: svc
+      role: auth
+  template:
+    metadata:
+      labels:
+        app: svc
+        role: auth
+    spec:
+      containers:
+      - name: auth-svc
+        image: microservices:v1
+        ports:
+        - containerPort: 9001
+        command:
+          - sh
+          - -c
+          - /app/authsvc -local=false
+        env:
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: svc-secrets
+                key: dbUser
+          - name: DATABASE_PASS
+            valueFrom:
+              secretKeyRef:
+                name: svc-secrets
+                key: dbPass 
+          - name: JWT_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: svc-secrets
+                key: jwtSecretKey
+
+          - name: DATABASE_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: svc-configs  
+                key: db_host
+          - name: DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: svc-configs  
+                key: db_name
+          - name: DATABASE_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: svc-configs  
+                key: db_port 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 9001
+      targetPort: 9001
+  selector:
+    app: svc
+    role: auth

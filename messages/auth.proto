@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./pb";
+
+message User {
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string password = 4;
+    int64 created = 5;
+    int64 updated = 6;
+}
+
+message GetUserRequest {
+    string id = 1;
+}
+
+message ListUsersRequest {}
+
+message DeleteUserResponse {
+    string id = 1;
+}
+
+message SignInRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message SignInResponse {
+    User user = 1;
+    string token = 2;
+}
+
+service AuthService {
+    rpc SignUp(User) returns (User);
+    rpc SignIn(SignInRequest) returns (SignInResponse);
+    rpc GetUser(GetUserRequest) returns (User);
+    rpc ListUsers(ListUsersRequest) returns (stream User);
+    rpc UpdateUser(User) returns (User);
+    rpc DeleteUser(GetUserRequest) returns (DeleteUserResponse);
+}
