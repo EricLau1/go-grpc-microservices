@@ -24,7 +24,7 @@ cd k8s/mongodb
 kubectl apply -f .
 ```
 
-### Create One User on MongodDB
+### Create One User on MongoDB
 
 ```bash
     mongo -u admin -p admin --authenticationDatabase admin
